@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Data Mahasiswa</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+</head>
+
+<body class="bg-light">
+
+    <div class="container mt-5">
+
+        <!-- HEADER -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+
+            <h2>
+                Data Mahasiswa
+            </h2>
+
+            <div>
+
+                <a href="/dashboard"
+                   class="btn btn-secondary">
+
+                    Dashboard
+
+                </a>
+
+                <a href="/tambah"
+                   class="btn btn-success">
+
+                    Tambah Data
+
+                </a>
+
+            </div>
+
+        </div>
+
+        <!-- CARD -->
+        <div class="card shadow p-4">
+
+            <!-- TABEL -->
+            <table class="table table-bordered table-hover">
+
+                <thead class="table-dark">
+
+                    <tr>
+
+                        <th>No</th>
+                        <th>Foto</th>
+                        <th>Nama</th>
+                        <th>NIM</th>
+                        <th>Jurusan</th>
+                        <th>Aksi</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for mhs in mahasiswa.items %}
+
+                    <tr>
+
+                        <!-- NOMOR -->
+                        <td>
+
+                            {{ loop.index }}
+
+                        </td>
+
+                        <!-- FOTO -->
+                        <td>
+
+                            <img src="{{ url_for('static', filename='uploads/' + mhs.foto) }}"
+                                 width="80"
+                                 height="80"
+                                 style="object-fit: cover; border-radius: 10px;">
+
+                        </td>
+
+                        <!-- NAMA -->
+                        <td>
+
+                            {{ mhs.nama }}
+
+                        </td>
+
+                        <!-- NIM -->
+                        <td>
+
+                            {{ mhs.nim }}
+
+                        </td>
+
+                        <!-- JURUSAN -->
+                        <td>
+
+                            {{ mhs.jurusan }}
+
+                        </td>
+
+                        <!-- AKSI -->
+                        <td>
+
+                            <a href="/edit/{{ mhs.id }}"
+                               class="btn btn-warning btn-sm">
+
+                                Edit
+
+                            </a>
+
+                            <a href="/hapus/{{ mhs.id }}"
+                               class="btn btn-danger btn-sm"
+                               onclick="return confirm('Yakin ingin menghapus data?')">
+
+                                Hapus
+
+                            </a>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+            <!-- PAGINATION -->
+            <br>
+
+            <div class="d-flex justify-content-center align-items-center gap-3">
+
+                <!-- BUTTON PREVIOUS -->
+                {% if mahasiswa.has_prev %}
+
+                    <a href="{{ url_for('mahasiswa', page=mahasiswa.prev_num) }}"
+                       class="btn btn-primary">
+
+                        Sebelumnya
+
+                    </a>
+
+                {% endif %}
+
+                <!-- INFO HALAMAN -->
+                <span class="fw-bold">
+
+                    Halaman {{ mahasiswa.page }}
+                    dari
+                    {{ mahasiswa.pages }}
+
+                </span>
+
+                <!-- BUTTON NEXT -->
+                {% if mahasiswa.has_next %}
+
+                    <a href="{{ url_for('mahasiswa', page=mahasiswa.next_num) }}"
+                       class="btn btn-primary">
+
+                        Selanjutnya
+
+                    </a>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>
