@@ -34,19 +34,16 @@ db = SQLAlchemy(app)
 # =========================
 class User(db.Model):
 
-    # PRIMARY KEY
     id = db.Column(
         db.Integer,
         primary_key=True
     )
 
-    # USERNAME
     username = db.Column(
         db.String(100),
         unique=True
     )
 
-    # PASSWORD
     password = db.Column(
         db.String(100)
     )
@@ -57,28 +54,23 @@ class User(db.Model):
 # =========================
 class Mahasiswa(db.Model):
 
-    # PRIMARY KEY
     id = db.Column(
         db.Integer,
         primary_key=True
     )
 
-    # NAMA MAHASISWA
     nama = db.Column(
         db.String(100)
     )
 
-    # NIM
     nim = db.Column(
         db.String(100)
     )
 
-    # JURUSAN
     jurusan = db.Column(
         db.String(100)
     )
 
-    # FOTO
     foto = db.Column(
         db.String(200)
     )
@@ -90,7 +82,13 @@ class Mahasiswa(db.Model):
 @app.route('/')
 def home():
 
-    return render_template('index.html')
+    # JIKA SUDAH LOGIN
+    if 'username' in session:
+
+        return redirect('/dashboard')
+
+    # JIKA BELUM LOGIN
+    return redirect('/login')
 
 
 # =========================
@@ -166,32 +164,8 @@ def login():
 # =========================
 # DASHBOARD
 # =========================
-# =========================
-# DASHBOARD
-# =========================
 @app.route('/dashboard')
 def dashboard():
-
-    # CEK LOGIN
-    if 'username' not in session:
-
-        return redirect('/login')
-
-    # TOTAL MAHASISWA
-    total_mahasiswa = Mahasiswa.query.count()
-
-    # TOTAL USER
-    total_user = User.query.count()
-
-    return render_template(
-        'dashboard.html',
-
-        username=session['username'],
-
-        total_mahasiswa=total_mahasiswa,
-
-        total_user=total_user
-    )
 
     # CEK LOGIN
     if 'username' not in session:
@@ -226,16 +200,22 @@ def logout():
 # =========================
 # DATA MAHASISWA
 # =========================
-# =========================
-# DATA MAHASISWA
-# =========================
 @app.route('/mahasiswa')
 def mahasiswa():
 
-    # Ambil nomor halaman
-    page = request.args.get('page', 1, type=int)
+    # CEK LOGIN
+    if 'username' not in session:
 
-    # Pagination
+        return redirect('/login')
+
+    # AMBIL NOMOR HALAMAN
+    page = request.args.get(
+        'page',
+        1,
+        type=int
+    )
+
+    # PAGINATION
     data_mahasiswa = Mahasiswa.query.paginate(
         page=page,
         per_page=5
@@ -244,19 +224,6 @@ def mahasiswa():
     return render_template(
         'mahasiswa.html',
         mahasiswa=data_mahasiswa
-    )
-
-    # CEK LOGIN
-    if 'username' not in session:
-
-        return redirect('/login')
-
-    # AMBIL SEMUA DATA
-    data_mahasiswa = Mahasiswa.query.all()
-
-    return render_template(
-        'mahasiswa.html',
-        data=data_mahasiswa
     )
 
 
@@ -320,40 +287,6 @@ def tambah():
 @app.route('/edit/<int:id>', methods=['GET', 'POST'])
 def edit(id):
 
-    data = Mahasiswa.query.get(id)
-
-    if request.method == 'POST':
-
-        data.nama = request.form['nama']
-        data.nim = request.form['nim']
-        data.jurusan = request.form['jurusan']
-
-        # FOTO
-        foto = request.files['foto']
-
-        # JIKA FOTO DIGANTI
-        if foto.filename != '':
-
-            nama_foto = foto.filename
-
-            foto.save(
-                os.path.join(
-                    app.config['UPLOAD_FOLDER'],
-                    nama_foto
-                )
-            )
-
-            data.foto = nama_foto
-
-        db.session.commit()
-
-        return redirect('/mahasiswa')
-
-    return render_template(
-        'edit.html',
-        data=data
-    )
-
     # CEK LOGIN
     if 'username' not in session:
 
@@ -370,23 +303,24 @@ def edit(id):
 
         data.jurusan = request.form['jurusan']
 
-        # CEK JIKA ADA FOTO BARU
+        # FOTO
         foto = request.files['foto']
 
-        if foto.filename != "":
+        # JIKA FOTO DIGANTI
+        if foto.filename != '':
 
-            nama_file = secure_filename(
+            nama_foto = secure_filename(
                 foto.filename
             )
 
             foto.save(
                 os.path.join(
                     app.config['UPLOAD_FOLDER'],
-                    nama_file
+                    nama_foto
                 )
             )
 
-            data.foto = nama_file
+            data.foto = nama_foto
 
         db.session.commit()
 
